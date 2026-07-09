@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyExam247 — Owner Panel</title>
+<style>
+  :root{
+    --ink:#1b1d23; --paper:#f6f3ec; --paper-2:#ffffff; --rule:#dcd6c6;
+    --saffron:#d9722c; --saffron-dk:#b8591d; --green:#2f6b4f; --green-dk:#1f4d38;
+    --muted:#73706a; --red:#b3392c;
+    --shadow: 0 1px 0 rgba(0,0,0,0.04), 0 6px 16px rgba(27,29,35,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Iowan Old Style","Georgia","Noto Serif",serif;
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .lockwrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .lockcard{
+    width:100%; max-width:380px; background:var(--paper-2);
+    border:1.5px dashed var(--rule); border-radius:16px;
+    padding:32px 26px; box-shadow:var(--shadow); text-align:center;
+  }
+  .lock-mark{
+    font-family:"Helvetica Neue",Arial,sans-serif; display:inline-block;
+    font-weight:800; font-size:12.5px; letter-spacing:0.14em;
+    color:#fff; background:var(--ink); padding:5px 10px; border-radius:4px; margin-bottom:14px;
+  }
+  .lockcard h2{ margin:0 0 6px; font-size:19px; }
+  .lockcard p{ font-family:"Helvetica Neue",Arial,sans-serif; font-size:13px; color:var(--muted); margin:0 0 20px; }
+  .lock-input{
+    width:100%; font-family:"Helvetica Neue",Arial,sans-serif; font-size:15px; font-weight:600;
+    text-align:center; padding:13px 14px; border:1.5px solid var(--rule); border-radius:10px;
+    background:var(--paper); color:var(--ink); outline:none; margin-bottom:12px;
+  }
+  .lock-input:focus{ border-color:var(--saffron); }
+  .lock-input.shake{ animation: shake .32s; border-color:var(--red); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+  .lock-btn{
+    width:100%; font-family:"Helvetica Neue",Arial,sans-serif; font-size:14.5px; font-weight:700;
+    border:none; border-radius:10px; padding:13px 14px; background:var(--ink); color:#fff; cursor:pointer;
+  }
+  .lock-err{ font-family:"Helvetica Neue",Arial,sans-serif; font-size:12.5px; color:var(--red); font-weight:700; margin-top:12px; min-height:16px; }
+
+  .topbar{
+    background:linear-gradient(180deg, rgba(27,29,35,0.97), rgba(27,29,35,0.9));
+    padding:14px 18px 12px; border-bottom:1px solid var(--rule);
+  }
+  .brand{ display:flex; align-items:baseline; gap:10px; max-width:720px; margin:0 auto; }
+  .brand .mark{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800; font-size:13px; letter-spacing:0.14em;
+    color:var(--ink); background:var(--saffron); padding:4px 8px; border-radius:4px;
+  }
+  .brand h1{ font-size:19px; margin:0; font-weight:700; color:#fff; }
+  .brand .tag{ font-family:"Helvetica Neue",Arial,sans-serif; font-size:11.5px; color:#c8c6c0; margin-left:auto; }
+
+  .wrap{ max-width:720px; margin:0 auto; padding:24px 16px 60px; }
+
+  .picker-row{ display:flex; gap:8px; overflow-x:auto; margin-bottom:14px; }
+  .pickbtn{
+    font-family:"Helvetica Neue",Arial,sans-serif; flex:0 0 auto;
+    border:1.5px solid var(--rule); background:var(--paper-2); color:var(--ink);
+    padding:10px 16px; border-radius:999px; font-size:14px; font-weight:700; cursor:pointer;
+  }
+  .pickbtn.active{ background:var(--green-dk); border-color:var(--green-dk); color:#fff; }
+
+  .subject-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .subjbtn{
+    font-family:"Helvetica Neue",Arial,sans-serif; border:1.5px solid var(--rule);
+    background:var(--paper-2); color:var(--ink); padding:8px 14px; border-radius:8px;
+    font-size:13.5px; font-weight:600; cursor:pointer;
+  }
+  .subjbtn.active{ background:var(--saffron); border-color:var(--saffron); color:#fff; }
+  .subjbtn.complete{ font-weight:800; }
+
+  .pwbox{
+    background:var(--paper-2); border:1.5px solid var(--green-dk); border-radius:14px;
+    padding:22px; text-align:center; box-shadow:var(--shadow); margin-bottom:14px;
+  }
+  .pwbox .lbl{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:11px; font-weight:800;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+  }
+  .pwbox .pw{
+    font-family:"Courier New",monospace; font-size:22px; font-weight:800;
+    color:var(--green-dk); letter-spacing:0.03em; word-break:break-all; margin-bottom:16px;
+  }
+  .copybtn2{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:14px; font-weight:700;
+    border:none; border-radius:10px; padding:12px 22px; background:var(--green-dk); color:#fff; cursor:pointer;
+  }
+  .copybtn2.done{ background:var(--saffron); }
+
+  .timerbox{
+    font-family:"Helvetica Neue",Arial,sans-serif; text-align:center; font-size:12.5px; color:var(--muted);
+    margin-bottom:24px;
+  }
+  .timerbox b{ color:var(--saffron-dk); font-size:14px; }
+
+  .note{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:12px; color:var(--muted);
+    background:var(--paper-2); border:1px dashed var(--rule); border-radius:10px; padding:14px 16px; line-height:1.6;
+  }
+  .note b{ color:var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="lockwrap" id="lockwrap">
+  <div class="lockcard">
+    <div class="lock-mark">ME247 · OWNER</div>
+    <h2>Owner Panel</h2>
+    <p>Sirf MyExam247 owner ke liye. Apna owner password daalein.</p>
+    <input type="password" id="ownerInput" class="lock-input" placeholder="Owner password" autocomplete="off">
+    <button class="lock-btn" id="ownerUnlockBtn">Enter</button>
+    <div class="lock-err" id="ownerErr"></div>
+  </div>
+</div>
+
+<div id="panel" style="display:none;">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark">ME247</span>
+      <h1>Owner Panel</h1>
+      <span class="tag">Password Generator</span>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="picker-row" id="classRow"></div>
+    <div class="subject-row" id="subjectRow"></div>
+
+    <div class="pwbox">
+      <div class="lbl" id="pwLabel">Select class &amp; subject</div>
+      <div class="pw" id="pwDisplay">—</div>
+      <button class="copybtn2" id="copyPwBtn">Copy password</button>
+    </div>
+
+    <div class="timerbox">Naya password milega <b id="countdown">--:--</b> me</div>
+
+    <div class="note">
+      <b>Kaise use karein:</b> Class + subject select karo, jo password dikhe wo student ko bhej do (WhatsApp/SMS). Ye password har 30 minute me badal jata hai, aur purana password agle 30 min tak bhi chalta rahega (total ~30min–1hr validity). Student wahi password apne "MyExam247" page pe daalega.
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER_PASSWORD = "Wednesday09-07-2025@45";
+// MUST match SHARED_SECRET in the student page exactly
+const SHARED_SECRET = "ME247-Raj-Secret-Key-2026#Bihar";
+const WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
+const CLASS_CODES = { "Class 10":"C10", "Class 11":"C11", "Class 12":"C12" };
+const SUBJECT_CODES = {
+  "Class 10": [
+    {code:"Sci", label:"Science"},
+    {code:"Math", label:"Mathematics"},
+    {code:"Eng", label:"English"},
+    {code:"Hin", label:"Hindi"},
+    {code:"SST", label:"SST"},
+    {code:"San", label:"Sanskrit"},
+    {code:"Complete", label:"Complete Class 10"}
+  ],
+  "Class 11": [
+    {code:"Phy", label:"Physics"},
+    {code:"Chem", label:"Chemistry"},
+    {code:"Bio", label:"Biology"},
+    {code:"Math", label:"Mathematics"},
+    {code:"Eng", label:"English"},
+    {code:"Hin", label:"Hindi"},
+    {code:"Complete", label:"Complete Class 11"}
+  ],
+  "Class 12": [
+    {code:"Phy", label:"Physics"},
+    {code:"Chem", label:"Chemistry"},
+    {code:"Bio", label:"Biology"},
+    {code:"Math", label:"Mathematics"},
+    {code:"Eng", label:"English"},
+    {code:"Hin", label:"Hindi"},
+    {code:"Complete", label:"Complete Class 12"}
+  ]
+};
+
+let activeClass = "Class 10";
+let activeSubjCode = null;
+
+async function sha256Hex(message){
+  const enc = new TextEncoder().encode(message);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function currentWindow(){ return Math.floor(Date.now() / WINDOW_MS); }
+
+async function generatePassword(clsCode, subjCode, win){
+  const hex = await sha256Hex(`${SHARED_SECRET}|${clsCode}|${subjCode}|${win}`);
+  const p1 = hex.slice(0,4).toUpperCase();
+  const p2 = hex.slice(4,8).toUpperCase();
+  const p3 = hex.slice(8,10).toUpperCase();
+  return `${clsCode}$${subjCode}#${p1}@${p2}!${p3}`;
+}
+
+function renderClassRow(){
+  const row = document.getElementById('classRow');
+  row.innerHTML = '';
+  Object.keys(CLASS_CODES).forEach(cls => {
+    const btn = document.createElement('button');
+    btn.className = 'pickbtn' + (cls === activeClass ? ' active' : '');
+    btn.textContent = cls;
+    btn.onclick = () => { activeClass = cls; activeSubjCode = null; renderClassRow(); renderSubjectRow(); updatePassword(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderSubjectRow(){
+  const row = document.getElementById('subjectRow');
+  row.innerHTML = '';
+  SUBJECT_CODES[activeClass].forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'subjbtn' + (s.code === activeSubjCode ? ' active' : '') + (s.code === 'Complete' ? ' complete' : '');
+    btn.textContent = s.code === 'Complete' ? '🎟️ ' + s.label : s.label;
+    btn.onclick = () => { activeSubjCode = s.code; renderSubjectRow(); updatePassword(); };
+    row.appendChild(btn);
+  });
+}
+
+async function updatePassword(){
+  const lbl = document.getElementById('pwLabel');
+  const disp = document.getElementById('pwDisplay');
+  if(!activeSubjCode){
+    lbl.textContent = 'Select class & subject';
+    disp.textContent = '—';
+    return;
+  }
+  const clsCode = CLASS_CODES[activeClass];
+  const subjInfo = SUBJECT_CODES[activeClass].find(s => s.code === activeSubjCode);
+  lbl.textContent = `${activeClass} — ${subjInfo.label}`;
+  const pw = await generatePassword(clsCode, activeSubjCode, currentWindow());
+  disp.textContent = pw;
+}
+
+function updateCountdown(){
+  const now = Date.now();
+  const msIntoWindow = now % WINDOW_MS;
+  const msLeft = WINDOW_MS - msIntoWindow;
+  const mm = String(Math.floor(msLeft / 60000)).padStart(2,'0');
+  const ss = String(Math.floor((msLeft % 60000)/1000)).padStart(2,'0');
+  document.getElementById('countdown').textContent = `${mm}:${ss}`;
+}
+
+let lastWindow = currentWindow();
+setInterval(() => {
+  updateCountdown();
+  const w = currentWindow();
+  if(w !== lastWindow){
+    lastWindow = w;
+    updatePassword();
+  }
+}, 1000);
+
+document.getElementById('copyPwBtn').onclick = (e) => {
+  const text = document.getElementById('pwDisplay').textContent;
+  if(text === '—') return;
+  const doneUI = () => {
+    const btn = e.currentTarget;
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy password'; btn.classList.remove('done'); }, 1300);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(doneUI);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(err){}
+    document.body.removeChild(ta);
+    doneUI();
+  }
+};
+
+function tryOwnerUnlock(){
+  const input = document.getElementById('ownerInput');
+  const err = document.getElementById('ownerErr');
+  if(input.value === OWNER_PASSWORD){
+    document.getElementById('lockwrap').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    renderClassRow();
+    renderSubjectRow();
+    updateCountdown();
+  } else {
+    err.textContent = 'Galat owner password.';
+    input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+  }
+}
+document.getElementById('ownerUnlockBtn').onclick = tryOwnerUnlock;
+document.getElementById('ownerInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') tryOwnerUnlock(); });
+</script>
+
+</body>
+</html>
